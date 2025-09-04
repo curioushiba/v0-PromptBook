@@ -10,10 +10,13 @@ import NavigationBar from "@/components/navigation-bar"
 import MobileNavigation from "@/components/mobile-navigation"
 import SearchBar from "@/components/search-bar"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 export default function Dashboard() {
   const [myPromptsIndex, setMyPromptsIndex] = useState(0)
   const [favoritePromptsIndex, setFavoritePromptsIndex] = useState(0)
+  const [isFolderModalOpen, setIsFolderModalOpen] = useState(false)
+  const [selectedPromptForFolder, setSelectedPromptForFolder] = useState<number | null>(null)
 
   const myPrompts = [
     {
@@ -37,6 +40,13 @@ export default function Dashboard() {
       time: "Created 3 days ago",
       gradient: "from-blue-600 to-blue-700",
     },
+  ]
+
+  const availableFolders = [
+    { id: "work", name: "Work Projects", color: "from-blue-500 to-blue-600" },
+    { id: "personal", name: "Personal", color: "from-green-500 to-emerald-500" },
+    { id: "creative", name: "Creative Ideas", color: "from-purple-500 to-pink-500" },
+    { id: "business", name: "Business Strategy", color: "from-orange-500 to-red-500" },
   ]
 
   const favoritePrompts = [
@@ -63,6 +73,18 @@ export default function Dashboard() {
   const handleSearch = (query: string) => {
     console.log("Searching for:", query)
     // TODO: Implement search logic
+  }
+
+  const handleAddToFolder = (promptIndex: number) => {
+    setSelectedPromptForFolder(promptIndex)
+    setIsFolderModalOpen(true)
+  }
+
+  const handleSaveToFolder = (folderId: string) => {
+    console.log(`Saving prompt ${selectedPromptForFolder} to folder ${folderId}`)
+    // TODO: Implement save to folder logic
+    setIsFolderModalOpen(false)
+    setSelectedPromptForFolder(null)
   }
 
   return (
@@ -160,6 +182,14 @@ export default function Dashboard() {
                             <Button size="sm" variant="ghost" className="text-white hover:bg-white/20 p-1">
                               <Heart className="h-4 w-4" />
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-white hover:bg-white/20 p-1"
+                              onClick={() => handleAddToFolder(index)}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
                         <h3 className="font-black text-lg mb-2">{prompt.title}</h3>
@@ -193,6 +223,14 @@ export default function Dashboard() {
                       </Button>
                       <Button size="sm" variant="ghost" className="text-white hover:bg-white/20 p-1">
                         <Heart className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-white hover:bg-white/20 p-1"
+                        onClick={() => handleAddToFolder(index)}
+                      >
+                        <Plus className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -381,6 +419,31 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      <Dialog open={isFolderModalOpen} onOpenChange={setIsFolderModalOpen}>
+        <DialogContent className="border-4 border-black rounded-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black uppercase tracking-wide">Save to Folder</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm font-medium">
+              Choose a folder to save "
+              {selectedPromptForFolder !== null ? myPrompts[selectedPromptForFolder]?.title : ""}" to:
+            </p>
+            <div className="grid grid-cols-1 gap-3">
+              {availableFolders.map((folder) => (
+                <Button
+                  key={folder.id}
+                  onClick={() => handleSaveToFolder(folder.id)}
+                  className={`bg-gradient-to-r ${folder.color} hover:opacity-90 text-white border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-bold p-4 h-auto justify-start`}
+                >
+                  {folder.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
